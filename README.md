@@ -1,11 +1,12 @@
-## My Project
+## Automatically Configure Amazon CloudWatch Log Groups Retention Period
 
-TODO: Fill this README out!
+One pillar of our six Well-Architected Framework Pillars is Cost Optimization. The cost optimization pillar focuses on avoiding unnecessary costs. By default, all the logs stored in *Amazon CloudWatch* log groups are kept indefinitely and their retention period is set to Never Expire which might result in excessive costs.
+ 
+To reduce storage costs, customers should consider changing the default retention period. Changing Amazon CloudWatch log groups retention period manually could be tedious considering that you need to track all the newly created log groups. This solution shall take care of this task in your behalf.
 
-Be sure to:
+**Deployment Instructions**: 
 
-* Change the title in this README
-* Edit your repository description on GitHub
+Covered in this blog post:
 
 ## Security
 
