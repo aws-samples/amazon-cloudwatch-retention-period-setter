@@ -1,0 +1,156 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this
+# software and associated documentation files (the "Software"), to deal in the Software
+# without restriction, including without limitation the rights to use, copy, modify,
+# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# NOTES
+# This CloudFormation template would provision the base infrastructure for the solution
+# You don't need to provision any other templates if you're planning to deploy the solution to a single region.
+
+
+AWSTemplateFormatVersion: 2010-09-09
+Description: 
+    This template deploys the Lambda Function, its IAM execution role, and Amazon EventBridge Rule that would trigger it.
+
+Parameters:
+
+  S3BucketName: 
+    Description: >
+      An Amazon S3 bucket in the same AWS Region as your function. The bucket can be in a different AWS account.
+      This is the bucket where you would be storing your LambdaFunction code
+    AllowedPattern: '^[a-z0-9]{3,63}$'
+    ConstraintDescription: 3-63 characters; must contain only lowercase letters or numbers.      
+    Type: String
+
+  S3BucketKey: 
+    Description: The Amazon S3 key of the deployment package.
+    Type: String
+
+  LambdaMemory: 
+    Description: >
+      Amount of memory in MB your Lambda Function can use at runtime. Defaults to 128.
+      Memory size ranges from 128 MB to 10,240 MB, in 1-MB increments
+    Type: Number
+    Default: 128
+
+  Regions: 
+    Description: >
+      The regions you would like to scan its log groups and set retention period for.
+      Possible values for this variable are the regions’ codes, i.e., us-east-1, us-east-2, us-west-1, …etc.
+      The regions you would like to scan its log groups and set retention period for.
+      Possible values for this variable are the regions’ codes, i.e., us-east-1, us-east-2, us-west-1, …etc.
+      If you want to pass more than one region for this variable, you need to comma separate them.
+    Type: String
+
+  Retention: 
+    Description: >
+      The number of days you would like to retain your logs in CloudWatch log groups.
+      Possible values for this variable:1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653
+    Type: Number
+    AllowedValues:
+      - 1
+      - 3
+      - 5
+      - 7
+      - 14
+      - 30
+      - 60
+      - 90
+      - 120
+      - 150
+      - 180
+      - 365
+      - 400
+      - 545
+      - 731
+      - 1827
+      - 3653
+
+Resources:
+  LambdaPermissionsToCW:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: LambdaExecutionRoleCW
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: LambdaExecutionRolePolicyCW
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutRetentionPolicy
+                  - logs:CreateLogGroup
+                  - logs:PutLogEvents
+                  - logs:DescribeLogGroups
+                Resource: "*"
+
+  CWRetentionPeriodFunction:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: CWRetentionPeriodFunction
+      Handler: "CloudWatchLogGroupRetentionSetter.lambda_handler"
+      Role: !GetAtt LambdaPermissionsToCW.Arn
+      Code: 
+        S3Bucket: !Sub ${S3BucketName}
+        S3Key: !Sub ${S3BucketKey}
+      Runtime: "python3.9"
+      MemorySize: !Sub ${LambdaMemory}
+      Timeout: "30"
+      Environment:
+        Variables:
+          REGIONS_TO_SCAN: !Ref Regions
+          RETENTION_DAYS: !Ref Retention
+
+  EventRule: 
+    Type: AWS::Events::Rule
+    Properties: 
+      Description: "EventRule"
+      EventPattern: 
+        source: 
+          - "aws.logs"
+        detail-type: 
+          - "AWS API Call via CloudTrail"
+        detail: 
+          eventSource: 
+            - "logs.amazonaws.com"
+          eventName:
+            - "CreateLogGroup"
+      State: "ENABLED"
+      Targets: 
+        - 
+          Arn: 
+            Fn::GetAtt: 
+              - "CWRetentionPeriodFunction"
+              - "Arn"
+          Id: "TargetFunctionV1"
+
+  PermissionForEventsToInvokeLambda: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+      FunctionName: 
+        Ref: "CWRetentionPeriodFunction"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: 
+        Fn::GetAtt: 
+          - "EventRule"
+          - "Arn"
