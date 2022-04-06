@@ -56,7 +56,6 @@ Resources:
   EventBridgeIAMrole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub EventBridgeEventsRouting-${AWS::Region}
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -66,7 +65,7 @@ Resources:
             Action: sts:AssumeRole
       Path: "/"
       Policies:
-        - PolicyName: PutEventsDestinationBus
+        - PolicyName: !Join ['-', ['PutEventsDestinationBus', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
           PolicyDocument:
             Version: '2012-10-17'
             Statement:

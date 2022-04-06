@@ -28,7 +28,7 @@ Parameters:
     Description: >
       An Amazon S3 bucket in the same AWS Region as your function. The bucket can be in a different AWS account.
       This is the bucket where you would be storing your LambdaFunction code
-    AllowedPattern: '^[a-z0-9]{3,63}$'
+    AllowedPattern: '^[a-z0-9_-]{3,63}$'
     ConstraintDescription: 3-63 characters; must contain only lowercase letters or numbers.      
     Type: String
 
@@ -80,7 +80,6 @@ Resources:
   LambdaPermissionsToCW:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: LambdaExecutionRoleCW
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -90,7 +89,7 @@ Resources:
             Action: sts:AssumeRole
       Path: "/"
       Policies:
-        - PolicyName: LambdaExecutionRolePolicyCW
+        - PolicyName: !Join ['-', ['LambdaExecutionRolePolicyCW', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
           PolicyDocument:
             Version: '2012-10-17'
             Statement:

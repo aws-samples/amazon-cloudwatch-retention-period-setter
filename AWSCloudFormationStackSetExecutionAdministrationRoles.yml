@@ -32,7 +32,7 @@ Resources:
   ExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: AWSCloudFormationStackSetExecutionRole
+      RoleName: AWSCloudFormationStackSetIAMExecutionRole
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -69,7 +69,7 @@ Resources:
   AdministrationRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: AWSCloudFormationStackSetAdministrationRole
+      RoleName: AWSCloudFormationStackSetIAMAdministrationRole
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -88,4 +88,4 @@ Resources:
                 Action:
                   - sts:AssumeRole
                 Resource:
-                  - "arn:*:iam::*:role/AWSCloudFormationStackSetExecutionRole"
+                  - "arn:*:iam::*:role/AWSCloudFormationStackSetIAMExecutionRole"
