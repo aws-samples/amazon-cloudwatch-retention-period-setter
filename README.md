@@ -6,7 +6,7 @@ To reduce storage costs, customers should consider changing the default retentio
 
 **Deployment Instructions**: 
 
-Covered in this blog post:
+For instustrctions see this [blog post](https://aws.amazon.com/blogs/infrastructure-and-automation/reduce-log-storage-costs-by-automating-retention-settings-in-amazon-cloudwatch/).
 
 ## Security
 
