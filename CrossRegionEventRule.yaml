@@ -21,7 +21,7 @@
 
 AWSTemplateFormatVersion: 2010-09-09
 Description: 
-    This template deploys Amazon EventBridge Rule in different AWS regions that routes events across regions
+    This template deploys Amazon EventBridge Rule in different AWS regions that routes events across regions (qs-1t13u4fmj).
 
 Parameters:
 

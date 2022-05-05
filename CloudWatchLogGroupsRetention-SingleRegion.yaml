@@ -20,7 +20,7 @@
 
 AWSTemplateFormatVersion: 2010-09-09
 Description: 
-    This template deploys the Lambda Function, its IAM execution role, and Amazon EventBridge Rule that would trigger it.
+    This template deploys the Lambda Function, its IAM execution role, and Amazon EventBridge Rule that would trigger it (qs-1t13u4fmj).
 
 Parameters:
 
