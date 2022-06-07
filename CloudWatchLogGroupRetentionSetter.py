@@ -34,9 +34,9 @@ logging.getLogger('botocore').setLevel(logging.CRITICAL)
 regions = [item.strip() for item in os.environ['REGIONS_TO_SCAN'].split(",") if item] 
  
 # Specify the retention period in days
-# valid values? Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653.
+# valid values? Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827,  2192, 2557, 2922, 3288, and 3653.
 RETENTION_PERIOD_IN_DAYS = int(os.environ.get('RETENTION_DAYS', 30))
-VALID_RETENTION_PERIOD_VALUES = [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]
+VALID_RETENTION_PERIOD_VALUES = [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 2192, 2557, 2922, 3288, 3653]
  
 # Making sure we configure our boto3 client with a different Retry Configuration
 custom_config = Config(
