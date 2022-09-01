@@ -71,7 +71,8 @@ def lambda_handler(event, context):
         while (nextToken is not None):
             response = client.describe_log_groups(nextToken=nextToken)
             nextToken = response.get('nextToken', None)
-            retention = retention.append(response['logGroups'])
+            for group in response['logGroups']:
+                retention.append(group)
  
         for group in retention:
             if 'retentionInDays' in group.keys():
