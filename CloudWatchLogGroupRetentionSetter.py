@@ -131,6 +131,3 @@ def lambda_handler(event, context):
                 LOGGER.info(f"PutRetention result {setretention}")
 
     return {"statusCode": 200, "body": "Process completed."}
-
-
-lambda_handler("", "")
